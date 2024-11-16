@@ -59,6 +59,8 @@
             border: none;
             cursor: pointer;
             transition: background-color 0.2s ease;
+            border-radius: var(--border-radius);
+            margin: 0 0.25rem;
         }
 
         .tab-button.active {
@@ -122,6 +124,35 @@
             padding: 1rem;
             border-radius: var(--border-radius);
             margin-top: 1.5rem;
+        }
+
+        .calendar-modal {
+            position: fixed;
+            inset: 0;
+            background-color: rgba(0, 0, 0, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 50;
+        }
+
+        .calendar-modal-content {
+            background-color: white;
+            padding: 1.5rem;
+            border-radius: var(--border-radius);
+            max-width: 24rem;
+            width: 90%;
+        }
+
+        .calendar-choice-button {
+            width: 100%;
+            padding: 0.75rem;
+            margin: 0.5rem 0;
+            border-radius: var(--border-radius);
+            border: none;
+            color: white;
+            cursor: pointer;
+            transition: background-color 0.2s ease;
         }
 
         @media (max-width: 640px) {
@@ -199,9 +230,8 @@
                 </p>
             </div>
         </div>
-
 <!-- Tabs -->
-        <div class="tabs mb-6">
+        <div class="tabs flex justify-center gap-2 mb-6">
             <button onclick="setMode('daily')" class="tab-button" id="dailyTab">בדיקת גונה יומית</button>
             <button onclick="setMode('monthly')" class="tab-button" id="monthlyTab">תכנון חודשי</button>
         </div>
@@ -317,6 +347,11 @@
             const start = new Date(dateStart);
             const end = new Date(dateEnd);
             
+            // Format dates for Google Calendar
+            const formatGoogleDate = (date) => {
+                return date.toISOString().replace(/[:-]/g, '').split('.')[0] + 'Z';
+            };
+
             // Format dates for ICS file
             const formatICSDate = (date) => {
                 return date.toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z';
@@ -325,27 +360,56 @@
             const event = {
                 title: `גונה: ${guna.name}`,
                 description: `${guna.description}\n\nהמלצות:\n${guna.recommendations.join('\n')}`,
-                startDate: formatICSDate(start),
-                endDate: formatICSDate(end)
+                startDate: formatGoogleDate(start),
+                endDate: formatGoogleDate(end)
             };
 
+            // Create Google Calendar URL
+            const googleUrl = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(event.title)}&details=${encodeURIComponent(event.description)}&dates=${event.startDate}/${event.endDate}`;
+
+            // Create ICS content for Apple Calendar
             const icsContent = `BEGIN:VCALENDAR
 VERSION:2.0
 BEGIN:VEVENT
 SUMMARY:${event.title}
 DESCRIPTION:${event.description.replace(/\n/g, '\\n')}
-DTSTART:${event.startDate}
-DTEND:${event.endDate}
+DTSTART:${formatICSDate(start)}
+DTEND:${formatICSDate(end)}
 END:VEVENT
 END:VCALENDAR`;
 
-            const blob = new Blob([icsContent], { type: 'text/calendar;charset=utf-8' });
+            // Create and show calendar choice modal
+            const modalHtml = `
+                <div class="calendar-modal" onclick="this.remove()">
+                    <div class="calendar-modal-content" onclick="event.stopPropagation()">
+                        <h3 class="text-lg font-bold mb-4">בחרי יומן</h3>
+                        <div class="space-y-3">
+                            <button onclick="window.open('${googleUrl}', '_blank')" 
+                                    class="calendar-choice-button bg-blue-500 hover:bg-blue-600">
+                                הוסיפי ליומן Google
+                            </button>
+                            <button onclick="downloadICS('${btoa(icsContent)}')" 
+                                    class="calendar-choice-button bg-gray-800 hover:bg-gray-700">
+                                הוסיפי ליומן iPhone/Apple
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            document.body.insertAdjacentHTML('beforeend', modalHtml);
+        }
+
+        function downloadICS(content) {
+            const decoded = atob(content);
+            const blob = new Blob([decoded], { type: 'text/calendar;charset=utf-8' });
             const link = document.createElement('a');
             link.href = URL.createObjectURL(blob);
             link.download = 'luna-guna-event.ics';
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);
+            document.querySelector('.calendar-modal').remove();
         }
 
         function calculateMonthly() {
@@ -376,6 +440,12 @@ END:VCALENDAR`;
                                 '${phaseStart.toISOString()}',
                                 '${phaseEnd.toISOString()}'
                             )" class="calendar-button">
+                                <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+                                    <line x1="16" y1="2" x2="16" y2="6"/>
+                                    <line x1="8" y1="2" x2="8" y2="6"/>
+                                    <line x1="3" y1="10" x2="21" y2="10"/>
+                                </svg>
                                 הוסיפי ליומן
                             </button>
                         </div>
