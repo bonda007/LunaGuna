@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>מעקב גונות במחזור החודשי</title>
+    <style>
+        :root {
+            --primary-color: #4a90e2;
+            --border-radius: 8px;
+        }
+
+        body {
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f5f5f5;
+            direction: rtl;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background-color: white;
+            padding: 20px;
+            border-radius: var(--border-radius);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        h1 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .input-section {
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        input[type="number"] {
+            padding: 10px;
+            font-size: 16px;
+            border: 2px solid #ddd;
+            border-radius: var(--border-radius);
+            width: 100px;
+            text-align: center;
+        }
+
+        .guna-card {
+            padding: 20px;
+            border-radius: var(--border-radius);
+            margin-top: 20px;
+            transition: all 0.3s ease;
+        }
+
+        .guna-card h2 {
+            margin-top: 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .add-calendar-btn {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: background-color 0.2s ease;
+        }
+
+        .add-calendar-btn:hover {
+            background-color: #357abd;
+        }
+
+        .tip-section {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: #fff3cd;
+            border: 1px solid #ffeeba;
+            border-radius: var(--border-radius);
+        }
+
+        /* Loading indicator */
+        .loading {
+            text-align: center;
+            padding: 20px;
+            color: #666;
+        }
+
+        /* Error message */
+        .error {
+            color: #dc3545;
+            text-align: center;
+            padding: 10px;
+            margin: 10px 0;
+            background-color: #f8d7da;
+            border-radius: var(--border-radius);
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                padding: 15px;
+            }
+            
+            .guna-card h2 {
+                flex-direction: column;
+                gap: 10px;
+            }
+            
+            .add-calendar-btn {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>מעקב גונות במחזור החודשי</h1>
+        
+        <div class="input-section">
+            <label for="cycleDay">באיזה יום במחזור את נמצאת?</label>
+            <br>
+            <input type="number" id="cycleDay" min="1" max="28" placeholder="1-28">
+        </div>
+        
+        <div id="gunaInfo"></div>
+        
+        <div class="tip-section">
+            <h3>טיפ</h3>
+            <p>זכרי שכל אישה חווה את המחזור באופן שונה, והמידע כאן הוא כללי.
+                הקשיבי לגוף שלך ולצרכים האישיים שלך.</p>
+        </div>
+    </div>
+
+    <script>
+        const cycleDayInput = document.getElementById('cycleDay');
+        const gunaInfoDiv = document.getElementById('gunaInfo');
+
+        async function fetchGunaInfo(day) {
+            try {
+                const response = await fetch(`/api/guna/${day}`);
+                if (!response.ok) {
+                    throw new Error('שגיאה בקבלת המידע');
+                }
+                return await response.json();
+            } catch (error) {
+                console.error('Error:', error);
+                return null;
+            }
+        }
+
+        function addToCalendar(gunaInfo) {
+            const event = {
+                title: `גונה: ${gunaInfo.guna}`,
+                description: `${gunaInfo.description}\n\nתרגול מומלץ: ${gunaInfo.practice}`,
+                startDate: new Date().toISOString().split('T')[0].replace(/-/g, '')
+            };
+
+            const googleCalendarUrl = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(event.title)}&details=${encodeURIComponent(event.description)}&dates=${event.startDate}/${event.startDate}`;
+            window.open(googleCalendarUrl, '_blank');
+        }
+
+        function updateGunaDisplay(gunaInfo) {
+            if (!gunaInfo) {
+                gunaInfoDiv.innerHTML = '';
+                return;
+            }
+
+            const textColor = gunaInfo.color === '#FFFFFF' ? '#000000' : '#FFFFFF';
+            
+            gunaInfoDiv.innerHTML = `
+                <div class="guna-card" style="background-color: ${gunaInfo.color}; color: ${textColor}">
+                    <h2>
+                        ${gunaInfo.guna}
+                        <button onclick="addToCalendar(${JSON.stringify(gunaInfo)})" class="add-calendar-btn">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                                <line x1="16" y1="2" x2="16" y2="6"></line>
+                                <line x1="8" y1="2" x2="8" y2="6"></line>
+                                <line x1="3" y1="10" x2="21" y2="10"></line>
+                            </svg>
+                            הוסיפי ליומן גוגל
+                        </button>
+                    </h2>
+                    <p><strong>תיאור:</strong> ${gunaInfo.description}</p>
+                    <p><strong>הורמון דומיננטי:</strong> ${gunaInfo.hormone}</p>
+                    <p><strong>תרגול מומלץ:</strong> ${gunaInfo.practice}</p>
+                </div>
+            `;
+        }
+
+        cycleDayInput.addEventListener('input', async (e) => {
+            const value = e.target.value;
+            if (value && value >= 1 && value <= 28) {
+                const gunaInfo = await fetchGunaInfo(value);
+                updateGunaDisplay(gunaInfo);
+            } else {
+                updateGunaDisplay(null);
+            }
+        });
+    </script>
+</body>
+</html>
