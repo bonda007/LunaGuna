@@ -4,9 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>LunaGuna - מעקב גונות במחזור החודשי</title>
-    <script src="https://unpkg.com/react@17/umd/react.production.min.js"></script>
-    <script src="https://unpkg.com/react-dom@17/umd/react-dom.production.min.js"></script>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
     <style>
         :root {
             --primary-color: #9C27B0;
@@ -35,6 +33,24 @@
             height: auto;
             margin: 0 auto 2rem;
             display: block;
+        }
+
+        .info-section {
+            background-color: #F3E5F5;
+            padding: 2rem;
+            border-radius: var(--border-radius);
+            margin-bottom: 2rem;
+        }
+
+        .info-section p {
+            line-height: 1.6;
+            margin-bottom: 1rem;
+        }
+
+        .guna-info-card {
+            padding: 1.5rem;
+            border-radius: var(--border-radius);
+            margin-bottom: 1rem;
         }
 
         .tab-button {
@@ -122,6 +138,7 @@
 </head>
 <body>
     <div class="container">
+        <!-- Logo -->
         <svg class="logo" viewBox="0 0 200 100">
             <circle cx="50" cy="50" r="35" fill="#E1BEE7" stroke="#9C27B0" strokeWidth="2"/>
             <path d="M60 50 Q80 20 100 50 T140 50" 
@@ -144,27 +161,70 @@
             </text>
         </svg>
 
-        <div class="tabs">
+        <!-- Info Section -->
+        <div class="info-section">
+            <h2 class="text-2xl font-bold mb-4 text-purple-800">על הגונות והמחזור החודשי</h2>
+            
+            <div class="space-y-4">
+                <p>
+                    לפי הפילוסופיה ההודית העתיקה, כל היבט בחיים מושפע משלוש איכויות (גונות) בסיסיות:
+                    סאטווה (טוהר והרמוניה), רג׳אס (תנועה ואנרגיה) וטאמאס (כבדות ויציבות).
+                </p>
+                
+                <p>
+                    המחזור החודשי הנשי מהווה ביטוי מושלם לריקוד העדין בין שלוש הגונות הללו:
+                </p>
+
+                <div class="grid gap-4 mt-4">
+                    <div class="p-4 bg-white rounded border-2 border-gray-200">
+                        <h3 class="font-bold mb-2">סאטווה - ימי הווסת (ימים 1-5)</h3>
+                        <p>תקופה של התחדשות, התכנסות פנימה וחיבור לאינטואיציה. זמן אידיאלי למדיטציה והתבוננות פנימית.</p>
+                    </div>
+
+                    <div class="p-4 bg-red-50 rounded border-2 border-red-200">
+                        <h3 class="font-bold mb-2">רג׳אס - ימי הפוריות (ימים 6-16)</h3>
+                        <p>תקופה של אנרגיה גבוהה, יצירתיות ופעילות. זמן מצוין ליוזמות חדשות ופעילות חברתית.</p>
+                    </div>
+
+                    <div class="p-4 bg-gray-100 rounded border-2 border-gray-300">
+                        <h3 class="font-bold mb-2">טאמאס - ימי טרום הווסת (ימים 17-28)</h3>
+                        <p>תקופה של האטה, עיבוד רגשי והתכוננות להתחדשות. זמן לארגון, סדר והתבוננות.</p>
+                    </div>
+                </div>
+
+                <p class="mt-4">
+                    הכרת הגונות והשפעתן על המחזור החודשי מאפשרת לנו לחיות בהרמוניה עם המחזוריות הטבעית של גופנו, 
+                    לתכנן פעילויות בהתאם לאנרגיות המשתנות, ולהפוך את המחזור החודשי ממשהו שצריך "להתמודד" איתו 
+                    לכלי עוצמתי של צמיחה והתפתחות.
+                </p>
+            </div>
+        </div>
+
+<!-- Tabs -->
+        <div class="tabs mb-6">
             <button onclick="setMode('daily')" class="tab-button" id="dailyTab">בדיקת גונה יומית</button>
             <button onclick="setMode('monthly')" class="tab-button" id="monthlyTab">תכנון חודשי</button>
         </div>
 
+        <!-- Daily Mode -->
         <div id="dailyMode" class="mode-content">
-            <h2>בדיקת גונה יומית</h2>
+            <h2 class="text-xl font-bold mb-4">בדיקת גונה יומית</h2>
             <input type="number" min="1" max="28" placeholder="יום במחזור (1-28)" class="input-field" id="cycleDayInput">
             <div id="dailyResult"></div>
         </div>
 
+        <!-- Monthly Mode -->
         <div id="monthlyMode" class="mode-content" style="display: none;">
-            <h2>תכנון חודשי</h2>
+            <h2 class="text-xl font-bold mb-4">תכנון חודשי</h2>
             <input type="date" class="input-field" id="startDateInput">
             <input type="number" value="28" min="21" max="35" class="input-field" id="cycleLengthInput" placeholder="אורך מחזור">
             <button onclick="calculateMonthly()" class="calendar-button">חשבי תחזית</button>
             <div id="monthlyResult"></div>
         </div>
 
+        <!-- Alert -->
         <div class="alert">
-            <h3>הערה חשובה</h3>
+            <h3 class="font-bold mb-2">הערה חשובה</h3>
             <p>המידע מבוסס על מחזור ממוצע. זכרי שכל אישה חווה את המחזור באופן שונה, 
                והתזמונים יכולים להשתנות. הקשיבי לגוף שלך והתאימי את הפעילויות בהתאם.</p>
         </div>
@@ -233,11 +293,11 @@
                 if (guna) {
                     resultDiv.innerHTML = `
                         <div class="guna-card ${guna.cssClass}">
-                            <h3>${guna.name}</h3>
-                            <p>${guna.description}</p>
+                            <h3 class="text-xl font-bold mb-4">${guna.name}</h3>
+                            <p class="mb-4">${guna.description}</p>
                             <div class="recommendations">
                                 <strong>המלצות:</strong>
-                                <ul>
+                                <ul class="list-disc list-inside mt-2">
                                     ${guna.recommendations.map(rec => `<li>${rec}</li>`).join('')}
                                 </ul>
                             </div>
@@ -253,12 +313,20 @@
             return date.toLocaleDateString('he-IL');
         }
 
-        function addToCalendar(guna, startDate, endDate) {
+        function addToCalendar(guna, dateStart, dateEnd) {
+            const start = new Date(dateStart);
+            const end = new Date(dateEnd);
+            
+            // Format dates for ICS file
+            const formatICSDate = (date) => {
+                return date.toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z';
+            };
+
             const event = {
                 title: `גונה: ${guna.name}`,
                 description: `${guna.description}\n\nהמלצות:\n${guna.recommendations.join('\n')}`,
-                startDate: startDate.toISOString().split('T')[0],
-                endDate: endDate.toISOString().split('T')[0]
+                startDate: formatICSDate(start),
+                endDate: formatICSDate(end)
             };
 
             const icsContent = `BEGIN:VCALENDAR
@@ -266,8 +334,8 @@ VERSION:2.0
 BEGIN:VEVENT
 SUMMARY:${event.title}
 DESCRIPTION:${event.description.replace(/\n/g, '\\n')}
-DTSTART;VALUE=DATE:${event.startDate.replace(/-/g, '')}
-DTEND;VALUE=DATE:${event.endDate.replace(/-/g, '')}
+DTSTART:${event.startDate}
+DTEND:${event.endDate}
 END:VEVENT
 END:VCALENDAR`;
 
@@ -301,21 +369,21 @@ END:VCALENDAR`;
 
                 html += `
                     <div class="guna-card ${guna.cssClass}">
-                        <div style="display: flex; justify-content: space-between; align-items: start;">
-                            <h3>${guna.name}</h3>
+                        <div class="flex justify-between items-start mb-4">
+                            <h3 class="text-xl font-bold">${guna.name}</h3>
                             <button onclick="addToCalendar(
-                                ${JSON.stringify(guna)}, 
-                                new Date('${phaseStart.toISOString()}'), 
-                                new Date('${phaseEnd.toISOString()}')
+                                ${JSON.stringify(guna)},
+                                '${phaseStart.toISOString()}',
+                                '${phaseEnd.toISOString()}'
                             )" class="calendar-button">
                                 הוסיפי ליומן
                             </button>
                         </div>
-                        <p class="dates">${formatDate(phaseStart)} - ${formatDate(phaseEnd)}</p>
-                        <p>${guna.description}</p>
-                        <div class="recommendations">
+                        <p class="mb-2">${formatDate(phaseStart)} - ${formatDate(phaseEnd)}</p>
+                        <p class="mb-4">${guna.description}</p>
+                        <div>
                             <strong>המלצות:</strong>
-                            <ul>
+                            <ul class="list-disc list-inside mt-2">
                                 ${guna.recommendations.map(rec => `<li>${rec}</li>`).join('')}
                             </ul>
                         </div>
