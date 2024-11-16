@@ -2,8 +2,8 @@ import os
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
+from fastapi.responses import FileResponse
 from typing import Optional
-import uvicorn
 
 # Get environment variables with defaults
 PORT = int(os.getenv("PORT", 8000))
@@ -61,8 +61,8 @@ def get_guna_info(day: int) -> Optional[GunaInfo]:
         )
     return None
 
-@app.get("/")
-async def read_root():
+@app.get("/health")
+async def health_check():
     """Health check endpoint."""
     return {"status": "healthy", "environment": ENVIRONMENT}
 
@@ -84,8 +84,10 @@ async def get_guna(day: int):
         "practice": guna_info.practice
     }
 
-# Serve static files
-app.mount("/", StaticFiles(directory="static", html=True), name="static")
+# Mount static files
+app.mount("/static", StaticFiles(directory="static"), name="static")
 
-if __name__ == "__main__":
-    uvicorn.run(app, host="0.0.0.0", port=PORT)
+@app.get("/")
+async def root():
+    """Serve the main HTML page."""
+    return FileResponse('static/index.html')
