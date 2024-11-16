@@ -1,2 +1,0 @@
-# LunaGuna
-Menstrual Cycle Companion
