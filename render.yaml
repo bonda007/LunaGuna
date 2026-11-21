@@ -1,0 +1,33 @@
+# Static site. This does not replace an existing Python web service in place.
+# See README for the switch. Build command `true` means there is no compile step.
+services:
+  - type: web
+    name: lunaguna
+    runtime: static
+    buildCommand: "true"
+    staticPublishPath: .
+    envVars:
+      - key: SKIP_INSTALL_DEPS
+        value: "true"
+    headers:
+      - path: /*
+        name: X-Content-Type-Options
+        value: nosniff
+      - path: /*
+        name: Referrer-Policy
+        value: no-referrer
+      - path: /*
+        name: X-Frame-Options
+        value: DENY
+      - path: /*
+        name: Permissions-Policy
+        value: camera=(), microphone=(), geolocation=(), interest-cohort=()
+      - path: /
+        name: Cache-Control
+        value: no-cache
+      - path: /index.html
+        name: Cache-Control
+        value: no-cache
+      - path: /sw.js
+        name: Cache-Control
+        value: no-cache
